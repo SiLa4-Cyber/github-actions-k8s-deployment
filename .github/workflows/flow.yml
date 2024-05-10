@@ -9,8 +9,8 @@ on:
 #  release:
 #    types: published
 
-env:
-  IMAGE_TAG: ${{ github.sha }}
+#env:
+  #IMAGE_TAG: ${{ github.sha }}
   #IMAGE_TAG: ${{ github.event.release.tag_name }}
 
 jobs:
@@ -31,8 +31,8 @@ jobs:
 
       - name: Build, tag, and push image to Yandex Cloud Container Registry
         run: |
-          docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY/tema:$IMAGE_TAG .
-          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY/tema:$IMAGE_TAG
+          docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY/tema:1 .
+          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY/tema:1
 
 
   deploy:
@@ -53,7 +53,7 @@ jobs:
         
       - name: Pull docker image
         run: |
-          docker pull cr.yandex/$CR_REGISTRY/$CR_REPOSITORY/tema:$IMAGE_TAG
+          docker pull cr.yandex/$CR_REGISTRY/$CR_REPOSITORY/tema:1$IMAGE_TAG
 
       - name: Kubernetes Set Context
         uses: Azure/k8s-set-context@v4.0.0
@@ -68,6 +68,6 @@ jobs:
          namespace: 'default'
          manifests: |
             deployment.yaml
-         images: 'cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG'
+         images: 'cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:1'
          
 
