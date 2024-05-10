@@ -55,6 +55,9 @@ jobs:
          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
         
       - name: Pull docker image
+        env:
+          CR_REGISTRY: crpqj6bs28mvdpattggi
+          CR_REPOSITORY: teman4ik
         run: |
           docker pull cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:1$IMAGE_TAG
 
