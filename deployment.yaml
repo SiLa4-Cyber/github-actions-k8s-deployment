@@ -1,20 +1,24 @@
 ---
-apiVersion: extensions/v1beta1
+
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-helloworld-deployment
+  name: nginx-deployment
+  labels:
+    app: nginx-hello-world
 spec:
+  replicas: 3
   selector:
     matchLabels:
-      app: nginx-helloworld
-  replicas: 2 # tells deployment to run 2 pods matching the template
+      app: nginx-hello-world
   template:
     metadata:
       labels:
-        app: nginx-helloworld
+        app: nginx-hello-world
     spec:
       containers:
-      - name: nginx-helloworld
+      - name: nginx-hello-world
         image: dockerbogo/docker-nginx-hello-world
         ports:
         - containerPort: 80
+  
