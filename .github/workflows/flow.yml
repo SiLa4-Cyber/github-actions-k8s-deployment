@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   release:
-    types: [published]
+    types: published
 
 env:
   IMAGE_TAG: ${{ github.event.release.tag_name }}
