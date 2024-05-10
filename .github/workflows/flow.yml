@@ -1,8 +1,13 @@
 name: CI/CD Pipeline
 
+
 on:
-  release:
-    types: published
+  push:
+    branches:
+      - main
+#on:
+#  release:
+#    types: published
 
 env:
   IMAGE_TAG: ${{ github.event.release.tag_name }}
