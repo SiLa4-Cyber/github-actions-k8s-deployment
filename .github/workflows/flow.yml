@@ -1,0 +1,73 @@
+name: CI/CD Pipeline
+
+
+on:
+  push:
+    branches:
+      - main
+#on:
+#  release:
+#    types: published
+
+env:
+  IMAGE_TAG: ${{ github.sha }}
+  #IMAGE_TAG: ${{ github.event.release.tag_name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Login to Yandex Cloud Container Registry
+        id: login-cr
+        uses: yc-actions/yc-cr-login@v2
+        with:
+         yc-sa-json-credentials: "${{ secrets.YC_SA_JSON_CREDENTIALS }}"
+
+      - name: Build, tag, and push image to Yandex Cloud Container Registry
+        run: |
+          docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY/tema:$IMAGE_TAG .
+          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY/tema:$IMAGE_TAG
+
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Yandex Cloud Container Registry
+        id: login-cr
+        uses: yc-actions/yc-cr-login@v2
+        with:
+         yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+        
+      - name: Pull docker image
+        run: |
+          docker pull cr.yandex/$CR_REGISTRY/$CR_REPOSITORY/tema:$IMAGE_TAG
+
+      - name: Kubernetes Set Context
+        uses: Azure/k8s-set-context@v4.0.0
+        with:
+         method: kubeconfig
+         kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
+         context: default-context
+
+      - name: Deploy to Kubernetes
+        uses: Azure/k8s-deploy@v5
+        with:
+         namespace: 'default'
+         manifests: |
+            deployment.yaml
+         images: 'cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG'
+         
+
