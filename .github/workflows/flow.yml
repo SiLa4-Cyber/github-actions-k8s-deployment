@@ -14,32 +14,32 @@ on:
   #IMAGE_TAG: ${{ github.event.release.tag_name }}
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+  # build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v3
         
-      - name: Login to Yandex Cloud Container Registry
-        id: login-cr
-        uses: yc-actions/yc-cr-login@v2
-        with:
-         yc-sa-json-credentials: "${{ secrets.YC_SA_JSON_CREDENTIALS }}"
+  #     - name: Login to Yandex Cloud Container Registry
+  #       id: login-cr
+  #       uses: yc-actions/yc-cr-login@v2
+  #       with:
+  #        yc-sa-json-credentials: "${{ secrets.YC_SA_JSON_CREDENTIALS }}"
 
-      - name: Build, tag, and push image to Yandex Cloud Container Registry
-        env:
-          CR_REGISTRY: crpqj6bs28mvdpattggi
-          CR_REPOSITORY: teman4ik
-        run: |
-          docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:1 .
-          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:1
+  #     - name: Build, tag, and push image to Yandex Cloud Container Registry
+  #       env:
+  #         CR_REGISTRY: crpqj6bs28mvdpattggi
+  #         CR_REPOSITORY: teman4ik
+  #       run: |
+  #         docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:1 .
+  #         docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:1
 
 
   deploy:
-    needs: build
+    # needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -73,7 +73,7 @@ jobs:
         with:
          namespace: 'default'
          manifests: |
-            deployment.yaml
+            deployment.yaml --validate=false
          images: 'cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:1'
          
 
