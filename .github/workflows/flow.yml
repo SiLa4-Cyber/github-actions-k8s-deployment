@@ -74,7 +74,7 @@ jobs:
          namespace: 'default'
          manifests: |
             service.yaml
-            deployment.yaml --validate=false
+            deployment.yaml
          images: 'cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:1'
          
 
