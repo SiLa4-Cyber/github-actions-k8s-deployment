@@ -12,6 +12,9 @@ on:
 #env:
   #IMAGE_TAG: ${{ github.sha }}
   #IMAGE_TAG: ${{ github.event.release.tag_name }}
+env:
+   CR_REGISTRY: crpqj6bs28mvdpattggi
+   CR_REPOSITORY: teman4ik
 
 jobs:
   # build:
@@ -55,9 +58,6 @@ jobs:
          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
         
       - name: Pull docker image
-        env:
-          CR_REGISTRY: crpqj6bs28mvdpattggi
-          CR_REPOSITORY: teman4ik
         run: |
           docker pull cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:1
 
@@ -66,13 +66,14 @@ jobs:
         with:
          method: kubeconfig
          kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
-         context: default-context
+         context: yc-tema-cluster
 
       - name: Deploy to Kubernetes
         uses: Azure/k8s-deploy@v5
         with:
          namespace: 'default'
          manifests: |
+            service.yaml
             deployment.yaml --validate=false
          images: 'cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:1'
          
