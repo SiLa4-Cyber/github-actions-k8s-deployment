@@ -5,8 +5,8 @@ on:
     types: published
     
 env:
-   # CR_REGISTRY: crpqj6bs28mvdpattggi
-   # CR_REPOSITORY: teman4ik
+   CR_REGISTRY: crpqj6bs28mvdpattggi
+   CR_REPOSITORY: teman4ik
    IMAGE_TAG: ${{ github.event.release.tag_name }}
 
 jobs:
@@ -26,9 +26,6 @@ jobs:
          yc-sa-json-credentials: "${{ secrets.YC_SA_JSON_CREDENTIALS }}"
 
       - name: Build, tag, and push image to Yandex Cloud Container Registry
-        env:
-          CR_REGISTRY: crpqj6bs28mvdpattggi
-          CR_REPOSITORY: teman4ik
         run: |
           docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
           docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
