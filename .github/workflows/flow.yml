@@ -1,48 +1,41 @@
 name: CI/CD Pipeline
 
-
 on:
-  push:
-    branches:
-      - main
-#on:
-#  release:
-#    types: published
-
-#env:
-  #IMAGE_TAG: ${{ github.sha }}
-  #IMAGE_TAG: ${{ github.event.release.tag_name }}
+  release:
+    types: published
+    
 env:
-   CR_REGISTRY: crpqj6bs28mvdpattggi
-   CR_REPOSITORY: teman4ik
+   # CR_REGISTRY: crpqj6bs28mvdpattggi
+   # CR_REPOSITORY: teman4ik
+   IMAGE_TAG: ${{ github.event.release.tag_name }}
 
 jobs:
-  # build:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v2
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-  #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
         
-  #     - name: Login to Yandex Cloud Container Registry
-  #       id: login-cr
-  #       uses: yc-actions/yc-cr-login@v2
-  #       with:
-  #        yc-sa-json-credentials: "${{ secrets.YC_SA_JSON_CREDENTIALS }}"
+      - name: Login to Yandex Cloud Container Registry
+        id: login-cr
+        uses: yc-actions/yc-cr-login@v2
+        with:
+         yc-sa-json-credentials: "${{ secrets.YC_SA_JSON_CREDENTIALS }}"
 
-  #     - name: Build, tag, and push image to Yandex Cloud Container Registry
-  #       env:
-  #         CR_REGISTRY: crpqj6bs28mvdpattggi
-  #         CR_REPOSITORY: teman4ik
-  #       run: |
-  #         docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:1 .
-  #         docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:1
+      - name: Build, tag, and push image to Yandex Cloud Container Registry
+        env:
+          CR_REGISTRY: crpqj6bs28mvdpattggi
+          CR_REPOSITORY: teman4ik
+        run: |
+          docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
+          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
 
 
   deploy:
-    # needs: build
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -59,7 +52,7 @@ jobs:
         
       - name: Pull docker image
         run: |
-          docker pull cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:1
+          docker pull cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
 
       - name: Kubernetes Set Context
         uses: Azure/k8s-set-context@v4.0.0
@@ -75,6 +68,6 @@ jobs:
          manifests: |
             service.yaml
             deployment.yaml
-         images: 'cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:1'
+         images: 'cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG'
          
 
